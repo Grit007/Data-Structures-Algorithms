@@ -1,0 +1,98 @@
+#include<iostream>
+using namespace std;
+int sequential_search(int* arr, int key, int length) { //O(n)
+	for (int i = 1; i <= length; i++) {
+		if (arr[i] == key)
+			return i; //注意，查找，返回的都是查找位置
+	}
+	return 0; //查找失败
+}
+int binary_search(int arr[], int key, int length) { //O(logn) 此外折半查找也可以用递归来实现，时间复杂度一样
+	int low = 1, high = length, mid;
+	while (low <= high) {
+		mid = (low + high) / 2;   // mid = low + (key - arr[low]) / (arr[high] - arr[low]) * (high - low);这种方法为插值查找，可以减少比较次数
+		if (key == arr[mid])	 //是关键字key 与查找表中最大最小记录的关键字比较后的查找方法
+			return mid; //返回位置
+		else {
+			if (key < arr[mid])
+				high = mid - 1;
+			else
+				low = mid + 1;
+		}	
+	}
+	return 0;
+}
+//还有个斐波那契查找,了解一下，这里不作实现了
+int main() {
+	int n;
+	cout << "请输入元素个数：";
+	cin >> n;
+	int* arr = (int*)malloc(sizeof(int) * (n+1));
+	for (int i = 1; i <= n; i++)
+		cin >> arr[i];
+	cout << sequential_search(arr, 3, n) << endl;
+	cout << binary_search(arr, 4, n) << endl; //千万注意,折半查找只能查找有序的，否则结果不对
+	return 0;
+}
+
+
+
+哈希表相关操作(注意是用指针实现的)
+
+#include<iostream>
+using namespace std;
+#define HASHSIZE 15
+#define NULLKEY -32768
+struct hashTable {
+	int* elem;//元素地址(该形式实际上是个数组)
+	int count;//当前元素个数
+};
+typedef hashTable* HT;
+int L = 0;//表长
+
+//初始化 是一切操作的基础 注意操作技巧
+void init(HT ht) {
+	int i, L = HASHSIZE;
+	ht->elem = (int*)malloc(L*sizeof(int));
+	ht->count = L;
+	for (i = 0; i < L; i++) {
+		ht->elem[i] = NULLKEY;
+	}
+}
+//除留余数法，最常用的哈希函数
+int Hash(int data) {
+	return data % L;
+}
+void insert(HT ht, int data) {
+	//addr是单个元素的地址，elem是地址数组，存放着所有元素的地址
+	int addr = Hash(data); //不能小写 会与库函数重名 
+	while (ht->elem[addr] != NULLKEY) { //若地址不等于初始化的内容，表示已经有元素了，会产生冲突
+		addr = (addr + 1) % L;//开放地址线性探测，还可以二次探测
+	}
+	ht->elem[addr] = data;
+}
+int find(HT ht, int data) {
+	int addr = Hash(data);
+	while (ht->elem[addr] != data) {
+		addr = (addr + 1) % L;
+		if (ht->elem[addr] == NULLKEY || addr == Hash(data))
+			return 0;
+	}
+	return addr; //返回元素的地址
+}
+void display(HT ht) {
+	int i;
+	for (i = 0; i < ht->count; i++) {
+		cout << ht->elem[i] << " ";
+	}
+}
+int main() {
+	HT ht = (HT)malloc(sizeof(hashTable));
+	int arr[HASHSIZE];
+	init(ht);
+	for (int i = 0; i < HASHSIZE; i++) {
+		insert(ht, arr[i]);
+	}
+	display(ht);
+	return 0;
+}

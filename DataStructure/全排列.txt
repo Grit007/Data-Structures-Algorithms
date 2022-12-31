@@ -1,0 +1,17 @@
+def permutation(lis):
+    if(len(lis) == 0 or len(lis) == 1):
+        return [lis] # 返回的是二维列表 里面每一个列表代表的是一个全排列
+    result = []
+    for i in lis:
+        temp_lis = lis[:] # 临时列表
+        temp_lis.remove(i) # 先将第一个元素删除
+        temp = permutation(temp_lis) # 递归生成其余元素的全排列
+        for j in temp: # 对每个全排列进行遍历
+            j.insert(0,i)
+            result.append(j)
+    return result
+
+if __name__ == "__main__":
+    lis = [1,2,3,4]
+    res = permutation(lis)
+    print(res)

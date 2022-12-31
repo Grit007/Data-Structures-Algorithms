@@ -1,0 +1,63 @@
+#include<iostream>
+using namespace std;
+int violence_match(const string s, const string t, int pos) {
+	int i = pos; //注意此处是位置，对应到数组下标时要-1
+	int j = 1;
+	while (i <= s.length() && j <= t.length()) { //在长度范围内
+		if (s[i-1] == t[j-1]) { //逐个字符进行比较
+			++i;
+			++j;
+		}
+		else {
+			i = i - j + 2;  //为什么是i-j+2要理解，有关系式i=pos+j-1 则pos=i-j+1其中j-1为移动的次数 
+			               //而i要回溯到上次匹配首位的下一位 因此pos的位置为i-j+1+1=i-j+2！
+			j = 1;
+		}
+	}
+	if (j > t.length()) //匹配成功 返回首次匹配位置
+		return i - t.length();
+	else
+		return 0; //匹配失败
+
+}
+
+void get_next(string t, int* next) {
+	int i = 1, j = 1;
+	next[0] = 0;
+	while (i < t.length()) {
+		if (j-1 == 0 || t[i-1] == t[j-1]) {  /* T[i]表示后缀的单个字符，T[j]表示前缀的单个字符 */
+			++i;
+			++j;
+			next[i-1] = j;
+		}
+		else {
+			j = next[j-1]; /* 若字符不相同，则j值回溯 */
+		}
+	}
+}
+int kmp_match(string s, string t, int pos) {
+	int i = pos, j = 1;
+	int next[255] = {0};
+	get_next(t, next);
+	while (i <= s.length() && j <= t.length()) {
+		if (j - 1 == 0 || s[i-1] == t[j-1]) {
+			++i;
+			++j;
+		}
+		else {
+			j = next[j];
+		}
+	}
+	if (j > t.length())
+		return i - t.length();
+	else
+		return 0;
+}
+int main() {
+	string s = "goodgoogle";
+	string t = "google";
+	int pos = 2;
+	cout << violence_match(s, t, pos);
+	//cout << kmp_match(s, t, pos) << endl;
+	return 0;
+}

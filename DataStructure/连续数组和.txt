@@ -1,0 +1,16 @@
+def max_sum(lis):
+    max_sum = lis[0] # 初始化
+    result = 0 # 存放累加和
+    for i in lis:
+        if result < 0: # 这句话不能删 因为可能出现累加和为负的情况
+            result = i # 若累加和小于0 则置为i (其实置为0也没影响)
+        else:
+            result += i
+        if result > max_sum:
+            max_sum = result
+    return max_sum
+
+if __name__ == "__main__":
+    lis = [6,-3,1,-2,7,-15,1,2,2]
+    res = max_sum(lis)
+    print(res)

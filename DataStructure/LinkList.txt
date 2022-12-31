@@ -1,0 +1,219 @@
+#include<iostream>
+using namespace std;
+struct Node {
+	int data;
+	struct Node* next;
+};
+typedef struct Node* LinkedList;
+//头插法建立链表(类似栈)   注：头插法与尾插法(类似队列)会一种就行了，因为二者的输出顺序是可以根据链表长度来进行转换的
+LinkedList createH() {
+	Node* L;
+	L = (Node*)malloc(sizeof(Node));
+	L->next = NULL;
+	int x;
+	while (cin >> x) {
+		Node* p;
+		p = (Node*)malloc(sizeof(Node));
+		p->data = x;
+		p->next = L->next;
+		L->next = p;
+	}
+	return L->next; //修改之后 返回的不再是头结点了 而是第一个数据节点，注意一下区别
+}
+int Linklength(LinkedList L) {
+	int k = 0;
+	while (L->next) { //执行链表的各种操作，一定要明白一句话：L是指向头结点，没有数据，L->next指向第一个节点，才真正存储数据
+		k++;
+		L = L->next;
+	}
+	return k;
+}
+//在链表的第i个位置插入x
+LinkedList insert(LinkedList L, int i, int x) {
+	Node* pre = L; //设置前驱节点为头结点
+	for (int temp = 1; temp < i; temp++)
+		pre = pre->next; //查找第i个位置的前驱结点 
+	Node * p = (Node*)malloc(sizeof(Node)); //要插入的节点
+	p->data = x;
+	p->next = pre->next;
+	pre->next = p;
+	return L;
+}
+//删除第i个元素
+LinkedList dele_i(LinkedList L, int i) {
+	Node* pre = L;
+	for (int temp = 1; temp < i; temp++)
+		pre = pre->next; //定位到前驱
+	pre->next = pre->next->next;
+	return L;
+}
+//删除指定的某个元素x
+LinkedList dele_data(LinkedList L, int x)
+{
+	Node* p, * pre = L;                   //pre为前驱结点，p为查找的结点。 
+	p = L->next;
+	while (p->data != x)              //从第一个节点开始,查找值为x的元素 
+	{
+		pre = p;
+		p = p->next;
+	}
+	pre->next = p->next;          //删除操作，将其前驱next指向其后继。 
+	free(p);
+	return L;
+}
+//反转单链表 递归实现 非递归方法实现比较绕 知道思路就行了 不过递归更要知道思路
+LinkedList reverseList(LinkedList L) {
+	Node* head = L; //从第一个节点开始
+	//此处条件不能写成(head==NULL)
+	if (head == NULL || head->next == NULL) //head为头结点
+		return head;
+	LinkedList newHead = reverseList(head->next);
+	head->next->next = head;
+	head->next = NULL;
+	return newHead;
+}
+int main() {
+	Node* L;
+	L = createH();
+	cout << Linklength(L) << endl;
+	//cout << sizeof(L) / sizeof(Node);这种方法求链表长度是错误的，因为L只是头指针，并不代表整个链表长度
+									   //注意与数组的区别
+	/*while (L){
+		cout << L->next->data<<" "; //要加next 不然会输出头结点(错误)，因为头结点并没有存储数据信息
+		L = L->next;
+	}*/
+	//L = insert(L, 3, 7);
+	//L = dele_i(L, 4);
+	//L = dele_data(L, 1);
+	//L = reverseList(L);
+	while (L) {
+		cout << L->data << " "; //要加next 不然会输出头结点(错误)，因为头结点并没有存储数据信息
+		L = L->next;
+	}
+	return 0;
+}
+
+//合并两个有序链表
+
+#include<iostream>
+using namespace std;
+struct LinkList {
+	int data;
+	struct LinkList* next;
+};
+typedef struct LinkList* Node;
+Node merge(Node head1, Node head2) {
+	if (!head1)
+		return head2;
+	if (!head2)
+		return head1;
+	if ((!head1) && (!head2))
+		return NULL;
+	Node first = NULL, current = NULL;
+	//找合并链表后的链表头(默认顺序是从小到大)
+	if (head1->data > head2->data) {
+		first = head2;
+		current = first; //当前节点
+		head2 = head2->next; //更新表头 指向下一个
+	}
+	else {
+		first = head1;
+		current = first;
+		head1 = head1->next;
+	}
+	//合并操作
+	while (head1 && head2) {
+		if (head1->data <= head2->data) {
+			current->next = head1;//当前节点的next指向head1  current->head1
+			head1 = head1->next;//更新head1
+			current = current->next;    //->current 更新current	
+		}
+		else {
+			current->next = head2; //顺序类似于排序中的交换 
+			head2 = head2->next;
+			current = current->next;	
+		}
+	}
+    //合并剩余链表
+	while (head1) {
+		current->next = head1;
+		head1 = head1->next;
+		current = current->next;	
+	}
+	while (head2) {
+		current->next = head2;
+		head2 = head2->next;
+		current = current->next;	
+	}
+	return current->next;//修改之后 返回的不再是头结点了 而是第一个数据节点，注意一下区别
+}
+//头插法建立链表(类似栈)   注：头插法与尾插法(类似队列)会一种就行了，因为二者的输出顺序是可以根据链表长度来进行转换的
+Node createH() {
+	Node L;
+	L = (Node)malloc(sizeof(LinkList));
+	L->next = NULL;
+	int x;
+	while (cin >> x) {
+		Node p;
+		p = (Node)malloc(sizeof(LinkList));
+		p->data = x;
+		p->next = L->next;
+		L->next = p;
+	}
+	return L->next; //修改之后 返回的不再是头结点了 而是第一个数据节点，注意一下区别
+}
+int Linklength(Node L) {
+	int k = 0;
+	while (L) { //执行链表的各种操作，一定要明白一句话：L是指向头结点，没有数据，L->next指向第一个节点，才真正存储数据
+		k++;
+		L = L->next;
+	}
+	return k;
+}
+int main() {
+	Node head1 = createH();
+	Node head2 = createH();
+	Node current = merge(head1, head2);
+	cout << Linklength(current) << "\n";
+	while (current) {
+		cout << current->data << " ";
+		current = current->next;
+	}
+	return 0;
+}
+
+
+//C++方式初始化链表 相当于尾插法，十分简单，注意学习一下
+
+#include<iostream>
+using namespace std;
+struct ListNode {
+	int val;
+	ListNode* next;
+	ListNode(int x) : val(x), next(NULL) {}
+	
+};
+typedef ListNode* LK;
+int main()
+{
+	//struct ListNode a[3] = { 3,4,5 }, b[3] = { 1,2,6 };
+	LK p = new ListNode(0);//因为有构造函数 必须初始化 类似于头结点，不存储任何有用信息
+	LK head = p;
+	int data;
+	//这种方法简历的链表类似尾插法，与数据的原始输入顺序一样！更符合人直观
+	while (cin>>data) {
+		head->next = new ListNode(data);//第一个数据节点赋值 类似于常规的p->data=..
+		//head = new ListNode(data);//这样写不对 因为就变成给头结点赋值了
+		head = head->next;//头结点后移，指向第一个节点，以此类推....
+	}
+
+	//这里是个小技巧 不能对head进行循环  因为head此时已经移到最后了  这样只会打印出最后一个节点
+   //一开始p和head都指向同一片区域的头部，但是在构建链表的过程中，head已经移到尾部了，p仍在头部
+  //对链表进行操作，首先要找头指针，不然链表就是无效的！因此对p进行操作
+
+	while (p) {
+		cout << p->next->val << " "; //p->next是第一个数据节点
+		p = p->next;
+	}
+}
+

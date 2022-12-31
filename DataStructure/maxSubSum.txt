@@ -1,0 +1,148 @@
+#include "pch.h"   //预编译头文件，放在固定的工程里面，提高编译速度
+#include <iostream>
+#include<stdlib.h>
+const int Infinite = -10000;
+int max_left = 0;
+int max_right = 0;
+using namespace std;
+int maxSubSum1(int arr[], int len) { //先求从第一个元素开始的最大和，然后再求第i个 
+									//其中最大者即为所求
+	int i, j;
+	int maxSum = 0;
+	for (i = 0; i < len; i++) {
+		int currSum = 0;
+		for (j = i; j < len; j++) {
+			currSum += arr[j];
+			if (currSum > maxSum) {
+				maxSum = currSum;
+			}
+		}
+	}
+	return maxSum;
+}
+/*
+最优方法，时间复杂度O（n）
+和最大的子序列的第一个元素肯定是正数
+因为元素有正有负，因此子序列的最大和一定大于0
+*/
+int maxSubSum2(int *arr, int len)
+{
+	int i;    //注意一下,这种求解方式并非动态规划
+	int maxSum = 0;
+	int CurSum = 0;
+	for (i = 0; i < len; i++)
+	{
+		CurSum += arr[i];
+		if (CurSum > maxSum)
+			maxSum = CurSum;
+		//如果累加和出现小于0的情况，
+		//则和最大的子序列肯定不可能包含前面的元素，
+		//这时将累加和置0，从下个元素重新开始累加
+		if (CurSum < 0)
+			CurSum = 0;
+	}
+	return maxSum;
+}
+int FindMaxCrossSubarray(int A[], int low, int mid, int high)  //跨越
+{
+	int left_sum = Infinite;
+	int sum = 0;
+	for (int i = mid; i >= low; i--)  //包含边界的左半部最大子数组
+	{
+		sum += A[i];
+		if (sum > left_sum)
+		{
+			left_sum = sum;
+			max_left = i;//可以用来记录子段数组的下标
+		}
+	}
+
+	int right_sum = Infinite;
+	sum = 0;
+	for (int i = mid + 1; i <= high; i++)  //包含边界的右半部最大子数组
+	{
+		sum += A[i];
+		if (sum > right_sum)
+		{
+			right_sum = sum;
+			max_right = i; //可以用来记录下标
+		}
+	}
+	return left_sum + right_sum; //因为之前计算时包含边界，所以直接相加即可得整段数组的最大值
+}
+
+int DCMaxSubarray(int A[], int low, int high)
+{
+	int left_sum, right_sum, cross_sum;
+	if (high == low)  //一个元素,递归结束条件(任何递归都要先考虑其递归结束条件)
+	{
+		return A[low];
+	}
+	else
+	{
+		int mid = (low + high) / 2; //分治
+		left_sum = DCMaxSubarray(A, low, mid);  //前半部
+		right_sum = DCMaxSubarray(A, mid + 1, high);  //后半部
+		cross_sum = FindMaxCrossSubarray(A, low, mid, high);  //跨越前后
+
+		if (left_sum >= right_sum && left_sum >= cross_sum)  //最大子数组在左边
+			return left_sum;
+
+		else if (right_sum >= left_sum && right_sum >= cross_sum)  //右边
+			return right_sum;
+
+		else  //跨越
+			return cross_sum;
+	}
+}
+int DPMaxSubarray(int array[], int length)
+{
+	int start = 0, end = 0;  //记录最大子数组的起始位置（在数组中的下标）
+	int MaxSumSub;  //最大子数组的值
+	int* dp = new int[length];  //动态规划记录
+
+	dp[0] = array[0];  //初始为第一个数
+	MaxSumSub = dp[0];  //最大值初始为第一个数
+	int temp = 0;  //
+
+	for (int i = 1; i < length; i++)
+	{
+		if (dp[i - 1] <= 0)  //前面的<0，直接丢弃
+		{
+			dp[i] = array[i];
+			temp = i; //记录起始为止
+		}
+		else
+			dp[i] = array[i] + dp[i - 1];  //往后求和 此处为状态转移方程
+
+		if (dp[i] > MaxSumSub)  //找到到i为止的最大子数组
+		{
+			MaxSumSub = dp[i];  //最大...
+			start = temp;  //标记起始
+			end = i;  //标记此时的结束位置
+		}
+	}
+	cout << "最大子序列的下标:" << start << "->" << end << endl;
+	return MaxSumSub;
+}
+int main() //测试哪种方式,直接把相对应的注释去掉即可
+{
+	int n,result;
+	scanf_s("%d", &n);
+	int *arr = (int *)malloc(n * sizeof(int));
+	for (int i = 0; i < 9; i++)
+		scanf_s("%d", &arr[i]);
+	//len = sizeof(arr) / sizeof(int); C语言中求解数组长度的方式
+	//result = maxSubSum1(arr, n); //暴力法求解
+	//std::cout << result;
+
+	//cout << DCMaxSubarray(arr, 0, n - 1) << endl;//分治法求解策略
+	//cout<<"最大子序列的下标:"<<max_left<<"->"<<max_right; //把下标定义成全局变量，理解其奥妙之处，否则无法更新其值
+
+	//result = DPMaxSubarray(arr, n);//动态规划方式
+	//cout << result << endl; //此处下标没有在主函数中输出，可以不用定义为全局变量
+
+	//result = maxSubSum2(arr, n);//线性时间求解(算是对动态规划的优化)
+	//std::cout << result;
+	return 0;
+}

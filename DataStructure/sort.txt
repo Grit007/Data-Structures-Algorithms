@@ -1,0 +1,62 @@
+#include<iostream>
+using namespace std;
+#define MAXSIZE 10
+struct SqList {
+	int arr[MAXSIZE + 1]; //arr为排序数组  arr[0]用作哨兵或者临时变量
+	int length; //线性表长度
+};
+typedef SqList* Sq;
+void swap(Sq L, int i, int j) {
+	int temp = L->arr[i];
+	L->arr[i] = L->arr[j];
+	L->arr[j] = temp;
+}
+void BubbleSort(Sq L) {
+	int i, j;
+	for(i=1;i<L->length;i++) //从1开始 0是哨兵 外循环控制比较次数
+		for (j = L->length - 1; j >= i; j--) { //内循环进行元素比较 注意是到j是到length-1，不然j+1会越界
+			if (L->arr[j] > L->arr[j + 1])
+				swap(L, j, j + 1);
+		}
+}
+void SelectSort(Sq L) {
+	int i, j, min;
+	for (i = 1; i < L->length; i++) { //与冒泡类似 外循环控制选择的次数
+		min = i; //一开始默认i是最小的
+		for (j = i + 1; j <= L->length; j++) { //内循环进行比较
+			if (L->arr[min] > L->arr[j])
+				min = j;
+		}
+		if (i != min) { // 若不等，说明找到比i更小的了 则进行交换
+			swap(L, i, min);
+		}
+	}
+}
+//设置哨兵元素，免去了查找过程中每次比较后都要判断查找位置是否越界的小技巧
+void InsertSort(Sq L) {
+	int i, j;
+	for (i = 2; i <= L->length; i++) {//从2开始 第一个元素作为有序表
+		if (L->arr[i] < L->arr[i - 1]) { //需要插入有序子表
+			L->arr[0] = L->arr[i];//设置哨兵
+			for (j = i - 1; L->arr[j] > L->arr[0]; j--)
+				L->arr[j + 1] = L->arr[j]; //记录以次后移
+			L->arr[j + 1] = L->arr[0];//插入到正确位置
+		}
+	}
+}
+int main() {
+	Sq L = (Sq)malloc(sizeof(SqList));//定义一个表头 此句话必须加  不然会报错
+	int n;
+	cout << "请输入待排序元素个数:";
+	cin >> n;
+	L->length = n;
+	for (int k = 1; k <= n; k++)
+		cin >> L->arr[k];
+	//BubbleSort(L);//O(n)(有序)和O(n~2)(无序)之间
+	//SelectSort(L);//O(n~2) 简单选择排序的性能 还是要略优于冒泡排序
+	//InsertSort(L);//O(n~2) 直接插入排序法比冒炮和简单选择排序的性能要好一些
+
+	for (int k = 1; k <= n; k++)
+		cout << L->arr[k] << " ";
+	return 0;
+}
